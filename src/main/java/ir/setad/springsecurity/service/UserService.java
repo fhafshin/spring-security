@@ -3,6 +3,7 @@ package ir.setad.springsecurity.service;
 import ir.setad.springsecurity.model.User;
 import ir.setad.springsecurity.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -31,5 +32,11 @@ public class UserService implements UserDetailsService {
 
 
 
+    }
+
+    @PostAuthorize("returnObject.username == authentication.principal.username")
+    public User findOneById(int id) {
+
+        return userRepository.findById(id).orElseThrow(()-> new RuntimeException("user.not.found"));
     }
 }

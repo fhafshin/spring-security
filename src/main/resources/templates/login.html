@@ -33,7 +33,9 @@
 						<div class="login-wrap p-4 p-lg-5">
 			      	<div class="d-flex">
 			      		<div class="w-100">
-
+<div th:if="${param.error}">
+    <p>نام کاربری یا گذرواژه اشتباه است</p>
+</div>
 			      		</div>
 
 			      	</div>
