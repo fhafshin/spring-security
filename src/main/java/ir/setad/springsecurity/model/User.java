@@ -5,7 +5,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 
@@ -21,6 +23,10 @@ public class User implements UserDetails {
     @CollectionTable(name = "roles", joinColumns = @JoinColumn(name = "id", referencedColumnName = "id"))
     @Enumerated(EnumType.STRING)
     private List<Role> role;
+
+
+    @OneToMany(mappedBy = "user")
+    private Set<Token> tokens=new HashSet<>();
 
     public List<Role> getRole() {
         return role.stream().toList();
