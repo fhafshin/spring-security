@@ -43,9 +43,12 @@ public class BasicConfiguration {
 
     private final UserService userService;
 private final JwtAuthFilter jwtAuthFilter;
-    public BasicConfiguration(UserService userService, JwtAuthFilter jwtAuthFilter) {
+private final Oauth2Service oauth2Service;
+    public BasicConfiguration(UserService userService, JwtAuthFilter jwtAuthFilter, Oauth2Service oauth2Service) {
         this.userService = userService;
         this.jwtAuthFilter = jwtAuthFilter;
+
+        this.oauth2Service = oauth2Service;
     }
 
     @Bean
@@ -61,13 +64,19 @@ private final JwtAuthFilter jwtAuthFilter;
         return http.csrf(csrf->csrf.disable())
                 .authorizeHttpRequests(request ->
                         request.requestMatchers(HttpMethod.POST,"/rest/v1").permitAll()
+                                .requestMatchers(HttpMethod.GET,"/oauth2/info").permitAll()
                         .requestMatchers(HttpMethod.GET,"/rest/v1").permitAll()
                                 .requestMatchers("/css/**", "/fonts/**", "/images/**", "/js/**", "/scss/**", "/main").permitAll()
                                 .requestMatchers(HttpMethod.GET,"/index").permitAll()
 
                                 .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
-                .formLogin(form -> form.loginPage("/login").permitAll())
+               // .formLogin(form -> form.loginPage("/login").permitAll())
+                .oauth2Login((oauth)->oauth.defaultSuccessUrl("/index/products")
+                        .failureUrl("/login/fail")
+                       .userInfoEndpoint(user->user.userService(oauth2Service))
+                )
+
                 .logout(logout -> logout.permitAll())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

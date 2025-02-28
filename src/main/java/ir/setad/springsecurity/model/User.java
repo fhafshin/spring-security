@@ -3,16 +3,14 @@ package ir.setad.springsecurity.model;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 
 @Table(name = "user_application")
-public class User implements UserDetails {
+public class User implements UserDetails, OAuth2User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,12 +21,25 @@ public class User implements UserDetails {
     @CollectionTable(name = "roles", joinColumns = @JoinColumn(name = "id", referencedColumnName = "id"))
     @Enumerated(EnumType.STRING)
     private List<Role> role;
+private String email;
+private String picture;
+private String name;
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
     @OneToMany(mappedBy = "user")
     private Set<Token> tokens=new HashSet<>();
 
     public List<Role> getRole() {
+        if(Objects.isNull(role)){
+            return Arrays.asList(Role.USER);
+        }
         return role.stream().toList();
     }
 
@@ -73,7 +84,15 @@ public class User implements UserDetails {
     }
 
     @Override
+    public Map<String, Object> getAttributes() {
+        return Map.of();
+    }
+
+    @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        if(Objects.isNull(role)){
+            return Arrays.asList(Role.USER);
+        }
         return role;
     }
 
@@ -86,4 +105,20 @@ public class User implements UserDetails {
     }
 
 
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    public String getPicture() {
+        return picture;
+    }
+
+    public void setPicture(String picture) {
+        this.picture = picture;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }
